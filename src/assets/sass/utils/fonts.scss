@@ -1,0 +1,72 @@
+// Barlow =============================================================== //
+@font-face {
+  font-family: 'Barlow';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Barlow'), url('../fonts/Barlow-Regular.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Barlow Thin';
+  font-style: normal;
+  font-weight: 100;
+  src: local('Barlow Thin'), url('../fonts/Barlow-Thin.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Barlow ExtraLight';
+  font-style: normal;
+  font-weight: 200;
+  src: local('Barlow ExtraLight'), url('../fonts/Barlow-ExtraLight.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Barlow Light';
+  font-style: normal;
+  font-weight: 300;
+  src: local('Barlow Light'), url('../fonts/Barlow-Light.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Barlow Medium';
+  font-style: normal;
+  font-weight: 500;
+  src: local('Barlow Medium'), url('../fonts/Barlow-Medium.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Barlow SemiBold';
+  font-style: normal;
+  font-weight: 600;
+  src: local('Barlow SemiBold'), url('../fonts/Barlow-SemiBold.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Barlow Bold';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Barlow Bold'), url('../fonts/Barlow-Bold.woff') format('woff');
+}
+
+
+// Roboto Condensed =============================================================== //
+@font-face {
+  font-family: 'Roboto Condensed Regular';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Roboto Condensed Regular'), url('../fonts/RobotoCondensed-Regular.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Roboto Condensed Bold';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Roboto Condensed Bold'), url('../fonts/RobotoCondensed-Bold.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Roboto Condensed Light';
+  font-style: normal;
+  font-weight: 300;
+  src: local('Roboto Condensed Light'), url('../fonts/RobotoCondensed-Light.woff') format('woff');
+}

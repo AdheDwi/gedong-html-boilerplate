@@ -1,2 +1,8 @@
 @import "variables.scss";
 @import "node_modules/bootstrap/scss/bootstrap";
+@import "utils/fonts.scss";
+
+body {
+  font-family: 'Barlow';
+  font-weight: 400;
+}

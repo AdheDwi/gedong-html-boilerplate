@@ -6,12 +6,10 @@ const htmlmin = require("gulp-htmlmin");
 const cssmin = require("gulp-cssmin");
 const uglify = require("gulp-uglify");
 const imagemin = require("gulp-imagemin");
-const concat = require("gulp-concat");
 const jsImport = require("gulp-js-import");
 const sourcemaps = require("gulp-sourcemaps");
 const htmlPartial = require("gulp-html-partial");
 const clean = require("gulp-clean");
-const googleWebFonts = require("gulp-google-webfonts");
 const cssbeautify = require("gulp-cssbeautify");
 const htmlbeautify = require("gulp-html-beautify");
 const postcss = require("gulp-postcss");
@@ -97,12 +95,12 @@ const serve = () => {
   browserSync.init({
     open: true,
     notify: false,
-    server: "./public",
+    server: "./public", // Pastikan folder public yang dilayani
   });
 };
 
 const browserSyncReload = (done) => {
-  browserSync.reload();
+  browserSync.reload(); // Memastikan halaman di-refresh
   done();
 };
 
@@ -119,6 +117,7 @@ const slickCarousel = () => {
 };
 
 const watchFiles = () => {
+  // Menonton file dengan gulp.parallel untuk menjalankan tugas secara bersamaan
   gulp.watch("src/**/*.html", gulp.series(html, browserSyncReload));
   gulp.watch("src/assets/**/*.scss", gulp.series(css, browserSyncReload));
   gulp.watch("src/assets/**/*.js", gulp.series(js, browserSyncReload));
@@ -129,14 +128,13 @@ const watchFiles = () => {
     "src/assets/vendor/slick-carousel/**/*.*",
     gulp.series(slickCarousel)
   );
-
-  return;
 };
 
 const del = () => {
   return gulp.src("public/*", { read: false }).pipe(clean());
 };
 
+// Task exports
 exports.css = css;
 exports.html = html;
 exports.js = js;
@@ -147,6 +145,7 @@ exports.del = del;
 exports.fontAwesome = fontAwesome;
 exports.slickCarousel = slickCarousel;
 
+// Serve task (menggabungkan semua tugas dan menyertakan browserSync)
 exports.serve = gulp.parallel(
   html,
   css,
@@ -158,6 +157,8 @@ exports.serve = gulp.parallel(
   serve,
   slickCarousel
 );
+
+// Task default yang akan berjalan pertama kali
 exports.default = gulp.series(
   del,
   html,

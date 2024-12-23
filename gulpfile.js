@@ -14,6 +14,9 @@ const clean = require("gulp-clean");
 const googleWebFonts = require("gulp-google-webfonts");
 const cssbeautify = require("gulp-cssbeautify");
 const htmlbeautify = require("gulp-html-beautify");
+const postcss = require("gulp-postcss");
+const tailwindcss = require("tailwindcss");
+const autoprefixer = require("autoprefixer");
 const isProd = process.env.NODE_ENV === "prod";
 
 const htmlFile = ["src/*.html"];
@@ -40,12 +43,15 @@ const html = () => {
 
 const css = () => {
   return gulp
-    .src("src/assets/sass/style.scss")
-    .pipe(gulpIf(!isProd, sourcemaps.init()))
+    .src("src/assets/sass/style.scss") // Sumber file SCSS
+    .pipe(gulpIf(!isProd, sourcemaps.init())) // Inisialisasi sourcemaps jika bukan produksi
     .pipe(
       sass({
-        includePaths: ["node_modules"],
-      }).on("error", sass.logError)
+        includePaths: ["node_modules"], // Menambahkan node_modules untuk pencarian path
+      }).on("error", sass.logError) // Menangani error dalam kompilasi Sass
+    )
+    .pipe(
+      postcss([tailwindcss, autoprefixer]) // Menambahkan Tailwind dan Autoprefixer melalui PostCSS
     )
     .pipe(
       cssbeautify({
@@ -54,9 +60,9 @@ const css = () => {
         autosemicolon: true,
       })
     )
-    .pipe(gulpIf(!isProd, sourcemaps.write()))
-    .pipe(gulpIf(isProd, cssmin()))
-    .pipe(gulp.dest("public/assets/css/"));
+    .pipe(gulpIf(!isProd, sourcemaps.write())) // Menulis sourcemaps jika bukan produksi
+    .pipe(gulpIf(isProd, cssmin())) // Minifikasi CSS jika dalam mode produksi
+    .pipe(gulp.dest("public/assets/css/")); // Output ke folder tujuan
 };
 
 const js = () => {

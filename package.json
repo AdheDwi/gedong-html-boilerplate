@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build": "gulp",
-    "start": "gulp serve --p 3009"
+    "start": "gulp serve --p 3009",
+    "dev": "gulp watch"
   },
   "type": "commonjs",
   "author": "Adhe Dwi Waliyanto",
@@ -27,6 +28,7 @@
     "gulp-if": "^3.0.0",
     "gulp-imagemin": "^5.0.3",
     "gulp-js-import": "^1.0.6",
+    "gulp-notify": "^5.0.0",
     "gulp-postcss": "^10.0.0",
     "gulp-sass": "^5.1.0",
     "gulp-sourcemaps": "^3.0.0",

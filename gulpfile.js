@@ -15,6 +15,7 @@ const htmlbeautify = require("gulp-html-beautify");
 const postcss = require("gulp-postcss");
 const tailwindcss = require("tailwindcss");
 const autoprefixer = require("autoprefixer");
+const notify = require("gulp-notify");
 const isProd = process.env.NODE_ENV === "prod";
 
 const htmlFile = ["src/*.html"];
@@ -39,28 +40,43 @@ const html = () => {
     .pipe(gulp.dest("public"));
 };
 
+// const css = () => {
+//   return gulp
+//     .src("src/assets/sass/style.scss") // Sumber file SCSS
+//     .pipe(gulpIf(!isProd, sourcemaps.init())) // Inisialisasi sourcemaps jika bukan produksi
+//     .pipe(
+//       sass({
+//         includePaths: ["node_modules"], // Menambahkan node_modules untuk pencarian path
+//       }).on("error", sass.logError) // Menangani error dalam kompilasi Sass
+//     )
+//     .pipe(
+//       postcss([tailwindcss, autoprefixer]) // Menambahkan Tailwind dan Autoprefixer melalui PostCSS
+//     )
+//     .pipe(
+//       cssbeautify({
+//         indent: "  ",
+//         openbrace: "separate-line",
+//         autosemicolon: true,
+//       })
+//     )
+//     .pipe(gulpIf(!isProd, sourcemaps.write())) // Menulis sourcemaps jika bukan produksi
+//     .pipe(gulpIf(isProd, cssmin())) // Minifikasi CSS jika dalam mode produksi
+//     .pipe(gulp.dest("public/assets/css/")); // Output ke folder tujuan
+// };
+
 const css = () => {
   return gulp
-    .src("src/assets/sass/style.scss") // Sumber file SCSS
-    .pipe(gulpIf(!isProd, sourcemaps.init())) // Inisialisasi sourcemaps jika bukan produksi
-    .pipe(
-      sass({
-        includePaths: ["node_modules"], // Menambahkan node_modules untuk pencarian path
-      }).on("error", sass.logError) // Menangani error dalam kompilasi Sass
-    )
-    .pipe(
-      postcss([tailwindcss, autoprefixer]) // Menambahkan Tailwind dan Autoprefixer melalui PostCSS
-    )
-    .pipe(
-      cssbeautify({
-        indent: "  ",
-        openbrace: "separate-line",
-        autosemicolon: true,
+    .src("src/assets/css/style.css")
+    .pipe(postcss([tailwindcss("./tailwind.config.js"), autoprefixer()]))
+    .on(
+      "error",
+      notify.onError({
+        title: "CSS Error",
+        message: "<%= error.message %>",
       })
     )
-    .pipe(gulpIf(!isProd, sourcemaps.write())) // Menulis sourcemaps jika bukan produksi
-    .pipe(gulpIf(isProd, cssmin())) // Minifikasi CSS jika dalam mode produksi
-    .pipe(gulp.dest("public/assets/css/")); // Output ke folder tujuan
+    .pipe(gulpIf(isProd, cssmin()))
+    .pipe(gulp.dest("public/assets/css/"));
 };
 
 const js = () => {
@@ -91,12 +107,14 @@ const fonts = () => {
     .pipe(gulp.dest("public/assets/fonts/"));
 };
 
-const serve = () => {
+const serve = (done) => {
   browserSync.init({
     open: true,
     notify: false,
+    port: 3000,
     server: "./public", // Pastikan folder public yang dilayani
   });
+  done();
 };
 
 const browserSyncReload = (done) => {
@@ -117,9 +135,8 @@ const slickCarousel = () => {
 };
 
 const watchFiles = () => {
-  // Menonton file dengan gulp.parallel untuk menjalankan tugas secara bersamaan
-  gulp.watch("src/**/*.html", gulp.series(html, browserSyncReload));
-  gulp.watch("src/assets/**/*.scss", gulp.series(css, browserSyncReload));
+  gulp.watch("src/**/*.html", gulp.series(html, css, browserSyncReload));
+  gulp.watch("src/assets/**/*.css", gulp.series(css, browserSyncReload));
   gulp.watch("src/assets/**/*.js", gulp.series(js, browserSyncReload));
   gulp.watch("src/assets/img/**/*.*", gulp.series(img));
   gulp.watch("src/assets/**/*.{eot,svg,ttf,woff,woff2}", gulp.series(fonts));
@@ -146,26 +163,12 @@ exports.fontAwesome = fontAwesome;
 exports.slickCarousel = slickCarousel;
 
 // Serve task (menggabungkan semua tugas dan menyertakan browserSync)
-exports.serve = gulp.parallel(
-  html,
-  css,
-  js,
-  img,
-  fonts,
-  fontAwesome,
-  watchFiles,
+exports.serve = gulp.series(
+  del,
+  gulp.parallel(css, js, html, img, fonts, fontAwesome, slickCarousel),
   serve,
-  slickCarousel
+  watchFiles
 );
 
 // Task default yang akan berjalan pertama kali
-exports.default = gulp.series(
-  del,
-  html,
-  css,
-  js,
-  fonts,
-  img,
-  fontAwesome,
-  slickCarousel
-);
+exports.default = gulp.series(del, html, css, js, fonts, img, fontAwesome);

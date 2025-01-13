@@ -122,10 +122,10 @@ const browserSyncReload = (done) => {
   done();
 };
 
-const fontAwesome = () => {
+const icons = () => {
   return gulp
-    .src("./node_modules/@fortawesome/**/*")
-    .pipe(gulp.dest("public/assets/vendor/"));
+    .src("./node_modules/phosphor-icons/**/*")
+    .pipe(gulp.dest("public/assets/vendor/icons/"));
 };
 
 const slickCarousel = () => {
@@ -140,7 +140,7 @@ const watchFiles = () => {
   gulp.watch("src/assets/**/*.js", gulp.series(js, browserSyncReload));
   gulp.watch("src/assets/img/**/*.*", gulp.series(img));
   gulp.watch("src/assets/**/*.{eot,svg,ttf,woff,woff2}", gulp.series(fonts));
-  gulp.watch("src/assets/vendor/**/*.*", gulp.series(fontAwesome));
+  gulp.watch("src/assets/vendor/**/*.*", gulp.series(icons));
   gulp.watch(
     "src/assets/vendor/slick-carousel/**/*.*",
     gulp.series(slickCarousel)
@@ -159,16 +159,16 @@ exports.fonts = fonts;
 exports.del = del;
 
 // Vendors
-exports.fontAwesome = fontAwesome;
+exports.icons = icons;
 exports.slickCarousel = slickCarousel;
 
 // Serve task (menggabungkan semua tugas dan menyertakan browserSync)
 exports.serve = gulp.series(
   del,
-  gulp.parallel(css, js, html, img, fonts, fontAwesome, slickCarousel),
+  gulp.parallel(css, js, html, img, fonts, icons, slickCarousel),
   serve,
   watchFiles
 );
 
 // Task default yang akan berjalan pertama kali
-exports.default = gulp.series(del, html, css, js, fonts, img, fontAwesome);
+exports.default = gulp.series(del, html, css, js, fonts, img, icons);

@@ -99,6 +99,7 @@
         transform: translateX(0);
       }
       ~ .hamburger-lines {
+        z-index: 9999;
         .line1 {
           transform: rotate(45deg);
         }

@@ -6,14 +6,16 @@ const htmlmin = require("gulp-htmlmin");
 const cssmin = require("gulp-cssmin");
 const uglify = require("gulp-uglify");
 const imagemin = require("gulp-imagemin");
-const concat = require("gulp-concat");
 const jsImport = require("gulp-js-import");
 const sourcemaps = require("gulp-sourcemaps");
 const htmlPartial = require("gulp-html-partial");
 const clean = require("gulp-clean");
-const googleWebFonts = require("gulp-google-webfonts");
 const cssbeautify = require("gulp-cssbeautify");
 const htmlbeautify = require("gulp-html-beautify");
+const postcss = require("gulp-postcss");
+const tailwindcss = require("tailwindcss");
+const autoprefixer = require("autoprefixer");
+const notify = require("gulp-notify");
 const isProd = process.env.NODE_ENV === "prod";
 
 const htmlFile = ["src/*.html"];
@@ -38,23 +40,41 @@ const html = () => {
     .pipe(gulp.dest("public"));
 };
 
+// const css = () => {
+//   return gulp
+//     .src("src/assets/sass/style.scss") // Sumber file SCSS
+//     .pipe(gulpIf(!isProd, sourcemaps.init())) // Inisialisasi sourcemaps jika bukan produksi
+//     .pipe(
+//       sass({
+//         includePaths: ["node_modules"], // Menambahkan node_modules untuk pencarian path
+//       }).on("error", sass.logError) // Menangani error dalam kompilasi Sass
+//     )
+//     .pipe(
+//       postcss([tailwindcss, autoprefixer]) // Menambahkan Tailwind dan Autoprefixer melalui PostCSS
+//     )
+//     .pipe(
+//       cssbeautify({
+//         indent: "  ",
+//         openbrace: "separate-line",
+//         autosemicolon: true,
+//       })
+//     )
+//     .pipe(gulpIf(!isProd, sourcemaps.write())) // Menulis sourcemaps jika bukan produksi
+//     .pipe(gulpIf(isProd, cssmin())) // Minifikasi CSS jika dalam mode produksi
+//     .pipe(gulp.dest("public/assets/css/")); // Output ke folder tujuan
+// };
+
 const css = () => {
   return gulp
-    .src("src/assets/sass/style.scss")
-    .pipe(gulpIf(!isProd, sourcemaps.init()))
-    .pipe(
-      sass({
-        includePaths: ["node_modules"],
-      }).on("error", sass.logError)
-    )
-    .pipe(
-      cssbeautify({
-        indent: "  ",
-        openbrace: "separate-line",
-        autosemicolon: true,
+    .src("src/assets/css/style.css")
+    .pipe(postcss([tailwindcss("./tailwind.config.js"), autoprefixer()]))
+    .on(
+      "error",
+      notify.onError({
+        title: "CSS Error",
+        message: "<%= error.message %>",
       })
     )
-    .pipe(gulpIf(!isProd, sourcemaps.write()))
     .pipe(gulpIf(isProd, cssmin()))
     .pipe(gulp.dest("public/assets/css/"));
 };
@@ -87,23 +107,25 @@ const fonts = () => {
     .pipe(gulp.dest("public/assets/fonts/"));
 };
 
-const serve = () => {
+const serve = (done) => {
   browserSync.init({
     open: true,
     notify: false,
-    server: "./public",
+    port: 3000,
+    server: "./public", // Pastikan folder public yang dilayani
   });
-};
-
-const browserSyncReload = (done) => {
-  browserSync.reload();
   done();
 };
 
-const fontAwesome = () => {
+const browserSyncReload = (done) => {
+  browserSync.reload(); // Memastikan halaman di-refresh
+  done();
+};
+
+const icons = () => {
   return gulp
-    .src("./node_modules/@fortawesome/**/*")
-    .pipe(gulp.dest("public/assets/vendor/"));
+    .src("./node_modules/phosphor-icons/**/*")
+    .pipe(gulp.dest("public/assets/vendor/icons/"));
 };
 
 const slickCarousel = () => {
@@ -113,24 +135,23 @@ const slickCarousel = () => {
 };
 
 const watchFiles = () => {
-  gulp.watch("src/**/*.html", gulp.series(html, browserSyncReload));
-  gulp.watch("src/assets/**/*.scss", gulp.series(css, browserSyncReload));
+  gulp.watch("src/**/*.html", gulp.series(html, css, browserSyncReload));
+  gulp.watch("src/assets/**/*.css", gulp.series(css, browserSyncReload));
   gulp.watch("src/assets/**/*.js", gulp.series(js, browserSyncReload));
   gulp.watch("src/assets/img/**/*.*", gulp.series(img));
   gulp.watch("src/assets/**/*.{eot,svg,ttf,woff,woff2}", gulp.series(fonts));
-  gulp.watch("src/assets/vendor/**/*.*", gulp.series(fontAwesome));
+  gulp.watch("src/assets/vendor/**/*.*", gulp.series(icons));
   gulp.watch(
     "src/assets/vendor/slick-carousel/**/*.*",
     gulp.series(slickCarousel)
   );
-
-  return;
 };
 
 const del = () => {
   return gulp.src("public/*", { read: false }).pipe(clean());
 };
 
+// Task exports
 exports.css = css;
 exports.html = html;
 exports.js = js;
@@ -138,27 +159,16 @@ exports.fonts = fonts;
 exports.del = del;
 
 // Vendors
-exports.fontAwesome = fontAwesome;
+exports.icons = icons;
 exports.slickCarousel = slickCarousel;
 
-exports.serve = gulp.parallel(
-  html,
-  css,
-  js,
-  img,
-  fonts,
-  fontAwesome,
-  watchFiles,
-  serve,
-  slickCarousel
-);
-exports.default = gulp.series(
+// Serve task (menggabungkan semua tugas dan menyertakan browserSync)
+exports.serve = gulp.series(
   del,
-  html,
-  css,
-  js,
-  fonts,
-  img,
-  fontAwesome,
-  slickCarousel
+  gulp.parallel(css, js, html, img, fonts, icons, slickCarousel),
+  serve,
+  watchFiles
 );
+
+// Task default yang akan berjalan pertama kali
+exports.default = gulp.series(del, html, css, js, fonts, img, icons);

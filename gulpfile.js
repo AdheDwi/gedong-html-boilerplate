@@ -9,6 +9,7 @@ const imagemin = require("gulp-imagemin");
 const jsImport = require("gulp-js-import");
 const sourcemaps = require("gulp-sourcemaps");
 const htmlPartial = require("gulp-html-partial");
+const fileInclude = require("gulp-file-include");
 const clean = require("gulp-clean");
 const cssbeautify = require("gulp-cssbeautify");
 const htmlbeautify = require("gulp-html-beautify");
@@ -18,17 +19,25 @@ const autoprefixer = require("autoprefixer");
 const notify = require("gulp-notify");
 const isProd = process.env.NODE_ENV === "prod";
 
-const htmlFile = ["src/*.html"];
+const htmlFile = ["src/*.html", "!src/partials/**"];
 
 const html = () => {
   return gulp
     .src(htmlFile)
     .pipe(
-      htmlPartial({
-        basePath: "src/partials/",
+      fileInclude({
+        prefix: "@@",
+        basepath: "src/partials/",
       })
     )
     .pipe(htmlbeautify())
+    .on(
+      "error",
+      notify.onError({
+        title: "HTML Error",
+        message: "<%= error.message %>",
+      })
+    )
     .pipe(
       gulpIf(
         isProd,
@@ -39,30 +48,6 @@ const html = () => {
     )
     .pipe(gulp.dest("public"));
 };
-
-// const css = () => {
-//   return gulp
-//     .src("src/assets/sass/style.scss") // Sumber file SCSS
-//     .pipe(gulpIf(!isProd, sourcemaps.init())) // Inisialisasi sourcemaps jika bukan produksi
-//     .pipe(
-//       sass({
-//         includePaths: ["node_modules"], // Menambahkan node_modules untuk pencarian path
-//       }).on("error", sass.logError) // Menangani error dalam kompilasi Sass
-//     )
-//     .pipe(
-//       postcss([tailwindcss, autoprefixer]) // Menambahkan Tailwind dan Autoprefixer melalui PostCSS
-//     )
-//     .pipe(
-//       cssbeautify({
-//         indent: "  ",
-//         openbrace: "separate-line",
-//         autosemicolon: true,
-//       })
-//     )
-//     .pipe(gulpIf(!isProd, sourcemaps.write())) // Menulis sourcemaps jika bukan produksi
-//     .pipe(gulpIf(isProd, cssmin())) // Minifikasi CSS jika dalam mode produksi
-//     .pipe(gulp.dest("public/assets/css/")); // Output ke folder tujuan
-// };
 
 const css = () => {
   return gulp
@@ -128,10 +113,16 @@ const icons = () => {
     .pipe(gulp.dest("public/assets/vendor/icons/"));
 };
 
-const slickCarousel = () => {
+const swiper = () => {
   return gulp
-    .src("./node_modules/slick-carousel/**")
-    .pipe(gulp.dest("public/assets/vendor/slick-carousel/"));
+    .src("./node_modules/swiper/**")
+    .pipe(gulp.dest("public/assets/vendor/swiper/"));
+};
+
+const datepicker = () => {
+  return gulp
+    .src("./node_modules/flatpickr/dist/**")
+    .pipe(gulp.dest("public/assets/vendor/flatpickr"));
 };
 
 const watchFiles = () => {
@@ -141,10 +132,8 @@ const watchFiles = () => {
   gulp.watch("src/assets/img/**/*.*", gulp.series(img));
   gulp.watch("src/assets/**/*.{eot,svg,ttf,woff,woff2}", gulp.series(fonts));
   gulp.watch("src/assets/vendor/**/*.*", gulp.series(icons));
-  gulp.watch(
-    "src/assets/vendor/slick-carousel/**/*.*",
-    gulp.series(slickCarousel)
-  );
+  gulp.watch("src/assets/vendor/swiper/**/*.*", gulp.series(swiper));
+  gulp.watch("src/assets/vendor/**/*.*", gulp.series(datepicker));
 };
 
 const del = () => {
@@ -160,15 +149,26 @@ exports.del = del;
 
 // Vendors
 exports.icons = icons;
-exports.slickCarousel = slickCarousel;
+exports.swiper = swiper;
+exports.datepicker = datepicker;
 
 // Serve task (menggabungkan semua tugas dan menyertakan browserSync)
 exports.serve = gulp.series(
   del,
-  gulp.parallel(css, js, html, img, fonts, icons, slickCarousel),
+  gulp.parallel(css, js, html, img, fonts, icons, swiper, datepicker),
   serve,
   watchFiles
 );
 
 // Task default yang akan berjalan pertama kali
-exports.default = gulp.series(del, html, css, js, fonts, img, icons);
+exports.default = gulp.series(
+  del,
+  html,
+  css,
+  js,
+  fonts,
+  img,
+  icons,
+  swiper,
+  datepicker
+);

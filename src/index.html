@@ -1,25 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Invit by Viksual Kreatif</title>
-    <link rel="stylesheet" href="assets/css/style.css" />
+  @@include("root-header.html", {"titlePage": "Gedong HTML"})
 
-    <!-- Fontawesome styles -->
-    <link
-      rel="stylesheet"
-      href="assets/vendor/fontawesome-free/css/all.min.css"
-    />
-  </head>
+  <body class="bg-white">
+    @@include("header/navbar.html")
 
-  <body>
-    <section
-      class="w-screen h-screen bg-grad text-6xl font-bold text-green-950 bg-teal-600"
+    <main
+      class="container mx-auto p-4 min-h-[calc(100dvh-96px-56px)]"
+      id="main-content"
     >
-      Hallo
-    </section>
-    <script src="assets/js/scripts.js" crossorigin="anonymous"></script>
+      <section id="home" class="my-8">
+        <h2 class="text-xl font-semibold">Selamat Datang</h2>
+        <p class="mt-2">
+          Ini adalah contoh website yang dioptimalkan untuk SEO dengan Tailwind
+          CSS.
+        </p>
+      </section>
+      <section id="about" class="my-8">
+        <h2 class="text-xl font-semibold">Tentang Kami</h2>
+        <p class="mt-2">
+          Kami menyediakan konten yang ramah SEO dan berkualitas tinggi.
+        </p>
+      </section>
+      <section id="contact" class="my-8">
+        <h2 class="text-xl font-semibold">Hubungi Kami</h2>
+        <p class="mt-2">
+          Silakan hubungi kami melalui email di
+          <a
+            href="mailto:info@example.com"
+            class="text-blue-600 hover:underline"
+            >info@example.com</a
+          >.
+        </p>
+      </section>
+    </main>
+
+    @@include("footer.html") @@include("root-footer.html")
   </body>
 </html>
